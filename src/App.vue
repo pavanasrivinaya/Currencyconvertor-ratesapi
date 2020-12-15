@@ -1,32 +1,170 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view />
+  <div id="app" class="app">
+    <transition mode="out-in" name="fade" appear>
+      <div class="app-card">
+        <ConverterForm />
+        <ConverterResult />
+      </div>
+    </transition>
   </div>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import ConverterForm from "@/components/ConverterForm";
+import ConverterResult from "@/components/ConverterResult";
+import { mapActions } from "vuex";
 
-#nav {
+export default {
+  name: "App",
+  components: {
+    ConverterForm,
+    ConverterResult
+  },
+  methods: {
+    ...mapActions(["fetchCurrencyUnits"]),
+    initData() {
+      this.fetchCurrencyUnits();
+    }
+  },
+  created() {
+    this.initData();
+  }
+};
+</script>
+<style lang="less">
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+:root {
+  --color-primary: #ff0077;
+  --color-secondary: #fa8e00;
+  --color-gray: #999;
+  --font-family: "Jost";
+  --app-card-width: 370px;
+}
+input,
+button,
+select {
+  outline: none;
+}
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+html,
+body {
+  font-family: var(--font-family);
+  font-size: 16px;
+  background-image: linear-gradient(
+    -90deg,
+    var(--color-primary),
+    var(--color-secondary)
+  );
+}
+.app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+.app-card {
+  width: var(--app-card-width);
+  min-height: 400px;
+  background-color: #fff;
+  border-radius: 10px;
   padding: 30px;
+  box-shadow: 0 20px 20px fade(black, 30);
 }
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+.btn {
+  &-currency-invert {
+    width: 48px;
+    height: 48px;
+    border-radius: 100%;
+    border: 0;
+    margin: 0 20px;
+    flex-shrink: 0;
+    background-color: var(--color-primary);
+    background-image: linear-gradient(
+      45deg,
+      var(--color-primary),
+      var(--color-secondary)
+    );
+    color: #fff;
+    font-size: 18px;
+    transition: all 200ms ease-out;
+    &:hover {
+      cursor: pointer;
+      background-image: none;
+      background-image: linear-gradient(
+        -45deg,
+        var(--color-primary),
+        var(--color-secondary)
+      );
+      font-size: 22px;
+    }
+  }
 }
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 1s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
+}
+@media (max-width: 480px) {
+  .app {
+    height: auto;
+    &-card {
+      width: 100%;
+      border-radius: 0;
+    }
+  }
+}
+@media (max-height: 800px) {
+  .app {
+    height: auto;
+    &-card {
+      margin: 30px 0;
+    }
+  }
+}
+.footer-text {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .link,
+  .link-fade {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: fade(#fff, 90);
+    font-weight: 400;
+    text-shadow: 0 2px 3px fade(black, 20);
+    margin: 0 10px;
+    span {
+      font-size: 18px;
+      margin-left: 5px;
+    }
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 </style>
