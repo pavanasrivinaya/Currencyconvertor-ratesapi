@@ -6,15 +6,14 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
+    // Rates API
     apiBase: "https://api.exchangeratesapi.io",
     currencyUnits: [],
     currencyFrom: null,
     currencyTo: null,
     amount: null,
     toAmount: null,
-    convertValue: null,
-    date: "",
-    currencyChartData: {}
+    convertValue: null
   },
   getters: {
     getCurrencyUnits(state) {
@@ -26,8 +25,7 @@ const store = new Vuex.Store({
         toAmount,
         convertValue,
         currencyFrom,
-        currencyTo,
-        date
+        currencyTo
       } = state;
 
       return {
@@ -35,12 +33,8 @@ const store = new Vuex.Store({
         toAmount,
         convertValue,
         currencyFrom,
-        currencyTo,
-        date
+        currencyTo
       };
-    },
-    getCurrencyChartData(state) {
-      return state.currencyChartData;
     }
   },
   mutations: {
@@ -49,17 +43,13 @@ const store = new Vuex.Store({
     },
     ["SET_CONVERT_CURRENCY"](
       state,
-      { currencyFrom, currencyTo, amount, toAmount, convertValue, date }
+      { currencyFrom, currencyTo, amount, toAmount, convertValue }
     ) {
       state.currencyFrom = currencyFrom;
       state.currencyTo = currencyTo;
       state.amount = amount;
       state.toAmount = toAmount;
       state.convertValue = convertValue;
-      state.date = date;
-    },
-    ["SET_CURRENCY_CHART"](state, value) {
-      state.currencyChartData = value;
     }
   },
   actions: {
@@ -78,14 +68,13 @@ const store = new Vuex.Store({
     },
 
     async fetchConvertCurrency(
-      { commit, state, dispatch },
+      { commit, state },
       { currencyFrom, currencyTo, amount }
     ) {
       try {
         const response = await axios.get(
           `${state.apiBase}/latest?base=${currencyFrom}`
         );
-        const date = response.data.date;
         const toAmount = response.data.rates[currencyTo];
         const convertValue = amount * toAmount;
 
@@ -94,69 +83,8 @@ const store = new Vuex.Store({
           currencyTo,
           amount,
           toAmount,
-          convertValue,
-          date
+          convertValue
         });
-
-        dispatch("fetchCurrencyChart", {
-          currencyFrom,
-          currencyTo
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    },
-
-    async fetchCurrencyChart({ commit, state }, { currencyFrom, currencyTo }) {
-      try {
-        let pastDate = new Date();
-        pastDate.setDate(pastDate.getDate() - 7);
-        let date = new Date();
-
-        const oneWeekAgo = `${pastDate.getFullYear()}-${pastDate.getMonth() +
-          1}-${pastDate.getDate() - 2}`;
-
-        const currentDate = `${date.getFullYear()}-${date.getMonth() +
-          1}-${date.getDate()}`;
-
-        const response = await axios.get(
-          `${state.apiBase}/history?start_at=${oneWeekAgo}&end_at=${currentDate}&base=${currencyFrom}`
-        );
-        const data = response.data.rates;
-
-        let chartData = [];
-
-        const monthNames = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December"
-        ];
-
-        for (let key in data) {
-          let d = new Date(key);
-          let newDate = `${d.getDate()} ${monthNames[d.getMonth()]}`;
-
-          [data[key]].map(item => {
-            chartData.push({
-              date: newDate,
-              value: item[currencyTo].toFixed(5)
-            });
-          });
-        }
-        const sortedChartData = chartData.sort(function(a, b) {
-          return new Date(a.date) - new Date(b.date);
-        });
-
-        commit("SET_CURRENCY_CHART", sortedChartData);
       } catch (error) {
         console.log(error);
       }

@@ -6,6 +6,7 @@
       = {{ financial(getConvertData.toAmount, 5) }}
       <u>{{ getConvertData.currencyTo }}</u>
     </div>
+
     <!-- convert result -->
     <div class="conversion-result">
       <div class="conversion-from">
