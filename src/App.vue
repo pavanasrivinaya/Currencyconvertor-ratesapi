@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="app">
-    <transition mode="out-in" name="fade" appear>
+    <transition mode="out-in" id="idname" name="fade" appear>
       <div class="app-card">
         <ConverterForm />
         <ConverterResult />
